@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-ink-950 text-ink-100 font-sans antialiased;
+    background-image:
+      radial-gradient(60rem 60rem at 100% -10%, rgba(207, 157, 49, 0.06), transparent),
+      radial-gradient(50rem 50rem at -10% 110%, rgba(68, 83, 121, 0.18), transparent);
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-serif;
+  }
+
+  ::selection {
+    @apply bg-brass-400/30 text-white;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-ink-700/70 bg-ink-900/70 backdrop-blur-sm shadow-lg shadow-black/30;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold
+      transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-brass-400/60
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn bg-brass-400 text-ink-950 hover:bg-brass-300 active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply btn bg-ink-800/70 text-ink-100 hover:bg-ink-700/80 border border-ink-700;
+  }
+
+  .btn-danger {
+    @apply btn bg-red-600/90 text-white hover:bg-red-500;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-ink-700 bg-ink-950/60 px-3.5 py-2.5 text-sm text-ink-50
+      placeholder:text-ink-400 focus:border-brass-400/70 focus:outline-none focus:ring-1 focus:ring-brass-400/40;
+  }
+
+  .label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-300;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-800/70 px-3 py-1 text-xs font-medium text-ink-200;
+  }
+}
+
+/* Custom scrollbar */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(100, 117, 154, 0.4);
+  border-radius: 9999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 117, 154, 0.65);
+}
+
+.prose-legal p {
+  @apply mb-3 leading-relaxed text-ink-200;
+}
+.prose-legal ul {
+  @apply mb-3 list-disc space-y-1 pl-5 text-ink-200;
+}
+.prose-legal ol {
+  @apply mb-3 list-decimal space-y-1 pl-5 text-ink-200;
+}
+.prose-legal h1,
+.prose-legal h2,
+.prose-legal h3 {
+  @apply mb-2 mt-4 font-semibold text-ink-50;
+}
+.prose-legal strong {
+  @apply text-ink-50;
+}
+.prose-legal a {
+  @apply text-brass-300 underline underline-offset-2;
+}
+.prose-legal code {
+  @apply rounded bg-ink-800 px-1 py-0.5 text-xs text-brass-200;
+}
