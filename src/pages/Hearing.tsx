@@ -54,7 +54,7 @@ function parseSuggestion(raw: string): Suggestion | null {
 
 export default function Hearing() {
   const c = useCaseStore((s) => s.caseFile);
-  const hasKey = useSettings((s) => !!s.geminiKey);
+  const hasKey = useSettings((s) => !!s.geminiKey || !!s.proxyUrl);
   const speech = useSpeechRecognition();
 
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);

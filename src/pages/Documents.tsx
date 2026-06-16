@@ -47,7 +47,7 @@ export default function Documents() {
   const addDocument = useCaseStore((s) => s.addDocument);
   const removeDocument = useCaseStore((s) => s.removeDocument);
   const mergeExtraction = useCaseStore((s) => s.mergeExtraction);
-  const hasKey = useSettings((s) => !!s.geminiKey);
+  const hasKey = useSettings((s) => !!s.geminiKey || !!s.proxyUrl);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState<string | null>(null);

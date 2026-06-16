@@ -19,13 +19,14 @@ import {
 } from "../lib/ai";
 import { extractAuthorities, verifyAuthorities } from "../lib/citations";
 import type { Authority } from "../lib/types";
+import { demoResearch, demoAuthorities } from "../lib/demo";
 import { PageHeader, KeyWarning, ErrorNote, Spinner, Disclaimer } from "../components/common";
 import Markdown from "../components/Markdown";
 
 export default function Research() {
   const c = useCaseStore((s) => s.caseFile);
   const saveDraft = useCaseStore((s) => s.saveDraft);
-  const hasKey = useSettings((s) => !!s.perplexityKey);
+  const hasKey = useSettings((s) => !!s.perplexityKey || !!s.proxyUrl);
 
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -145,6 +146,16 @@ export default function Research() {
           ))}
         </div>
         <div className="mt-4 flex justify-end">
+          <button
+            onClick={() => {
+              setResult(demoResearch);
+              setAuthorities(demoAuthorities);
+              setQuery("Relevant law & rules (simulated)");
+            }}
+            className="btn-ghost"
+          >
+            <Sparkles size={16} /> Simulate
+          </button>
           <button
             onClick={() => run(query)}
             disabled={loading || !hasKey || !query.trim()}

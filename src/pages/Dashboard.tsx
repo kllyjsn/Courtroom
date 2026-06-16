@@ -1,49 +1,34 @@
 import { Link } from "react-router-dom";
 import {
   FolderOpen,
+  FileUp,
   Search,
   Gavel,
+  FileSignature,
+  CalendarClock,
   BookOpen,
   Radio,
+  Swords,
   ArrowRight,
-  CalendarClock,
   CheckCircle2,
   Circle,
+  Zap,
+  Scale,
 } from "lucide-react";
 import { useCaseStore } from "../store/useCaseStore";
 import { Disclaimer } from "../components/common";
 
 const MODULES = [
-  {
-    to: "/case",
-    title: "Case Builder",
-    desc: "Capture the facts, parties, timeline, and evidence that power everything else.",
-    icon: FolderOpen,
-  },
-  {
-    to: "/research",
-    title: "Legal Research",
-    desc: "Find the statutes, rules, and precedent for your jurisdiction — with citations.",
-    icon: Search,
-  },
-  {
-    to: "/arguments",
-    title: "Arguments & Motions",
-    desc: "Build your argument, anticipate the other side, and draft motions.",
-    icon: Gavel,
-  },
-  {
-    to: "/guide",
-    title: "Rights & Objections",
-    desc: "Know-your-rights, courtroom flow, and a tap-to-use objection cheat sheet.",
-    icon: BookOpen,
-  },
-  {
-    to: "/hearing",
-    title: "Hearing Mode",
-    desc: "Live transcription with real-time objection & response suggestions.",
-    icon: Radio,
-  },
+  { to: "/case", title: "Case Builder", desc: "Capture facts, parties, timeline, and evidence.", icon: FolderOpen },
+  { to: "/documents", title: "Documents & Intake", desc: "Upload docs → auto-build your case via OCR + AI.", icon: FileUp },
+  { to: "/research", title: "Legal Research", desc: "Web-grounded findings with verified citations.", icon: Search },
+  { to: "/theory", title: "Case Theory", desc: "Map evidence to legal elements; find proof gaps.", icon: Scale },
+  { to: "/arguments", title: "Arguments & Motions", desc: "Argument outline, rebuttals, and motion drafts.", icon: Gavel },
+  { to: "/forms", title: "Court Forms", desc: "Generate court-ready PDFs and an exhibit binder.", icon: FileSignature },
+  { to: "/deadlines", title: "Deadlines", desc: "Filing deadlines + .ics calendar export.", icon: CalendarClock },
+  { to: "/guide", title: "Rights & Objections", desc: "Procedure guide and objection cheat sheet.", icon: BookOpen },
+  { to: "/hearing", title: "Hearing Mode", desc: "Live transcription with real-time AI prompts.", icon: Radio },
+  { to: "/mock", title: "Mock Hearing", desc: "Practice against an AI judge & opposing counsel.", icon: Swords },
 ];
 
 function daysUntil(dateStr: string): number | null {
@@ -59,6 +44,8 @@ function daysUntil(dateStr: string): number | null {
 
 export default function Dashboard() {
   const c = useCaseStore((s) => s.caseFile);
+  const loadDemo = useCaseStore((s) => s.loadDemo);
+  const isEmpty = !c.title && !c.summary && c.parties.length === 0;
 
   const checklist = [
     { label: "Jurisdiction set", done: !!c.jurisdiction },
@@ -83,6 +70,24 @@ export default function Dashboard() {
           research the law, draft what you need, and practice for the hearing.
         </p>
       </div>
+
+      {/* Demo banner */}
+      {isEmpty && (
+        <div className="mb-6 rounded-2xl border border-brass-400/30 bg-brass-400/5 p-5">
+          <div className="flex flex-wrap items-center gap-4">
+            <Zap size={22} className="shrink-0 text-brass-300" />
+            <div className="min-w-0 flex-1">
+              <h2 className="text-sm font-semibold text-brass-200">See it in action</h2>
+              <p className="text-sm text-ink-300">
+                Load a sample security-deposit case to explore every feature — no API keys needed.
+              </p>
+            </div>
+            <button onClick={loadDemo} className="btn-primary">
+              <Zap size={16} /> Load demo case
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Status row */}
       <div className="mb-8 grid gap-4 sm:grid-cols-3">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarClock, Wand2, Plus, Trash2, CalendarArrowDown } from "lucide-react";
+import { CalendarClock, Wand2, Plus, Trash2, CalendarArrowDown, Sparkles } from "lucide-react";
 import { useCaseStore } from "../store/useCaseStore";
 import { useSettings } from "../store/useSettings";
 import { generateDeadlines } from "../lib/analysis";
@@ -7,6 +7,7 @@ import { MissingKeyError } from "../lib/ai";
 import { buildIcs } from "../lib/ics";
 import { downloadBlob } from "../lib/download";
 import { PageHeader, KeyWarning, ErrorNote, Spinner, Disclaimer } from "../components/common";
+import { demoDeadlines } from "../lib/demo";
 
 function daysUntil(dateStr: string): number | null {
   const [y, m, day] = dateStr.split("-").map(Number);
@@ -33,7 +34,7 @@ export default function Deadlines() {
   const addDeadline = useCaseStore((s) => s.addDeadline);
   const updateDeadline = useCaseStore((s) => s.updateDeadline);
   const removeDeadline = useCaseStore((s) => s.removeDeadline);
-  const hasKey = useSettings((s) => !!s.geminiKey);
+  const hasKey = useSettings((s) => !!s.geminiKey || !!s.proxyUrl);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +85,9 @@ export default function Deadlines() {
           <div className="flex gap-2">
             <button onClick={exportIcs} disabled={c.deadlines.length === 0} className="btn-ghost">
               <CalendarArrowDown size={16} /> Export .ics
+            </button>
+            <button onClick={() => setDeadlines(demoDeadlines)} className="btn-ghost">
+              <Sparkles size={16} /> Simulate
             </button>
             <button onClick={generate} disabled={loading || !hasKey} className="btn-primary">
               <Wand2 size={16} /> {c.deadlines.some((d) => d.source === "ai") ? "Regenerate" : "Generate"}

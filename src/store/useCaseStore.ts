@@ -10,6 +10,7 @@ import type {
   Deadline,
   UploadedDoc,
 } from "../lib/types";
+import { demoCase } from "../lib/demo";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -82,6 +83,9 @@ interface CaseState {
 
   /** Merge AI-extracted fields into the case file (append lists, fill blanks). */
   mergeExtraction: (patch: Partial<CaseFile>) => void;
+
+  /** Load a fully-populated demo case for showcasing the app. */
+  loadDemo: () => void;
 
   saveDraft: (draft: Omit<SavedDraft, "id" | "createdAt">) => void;
   removeDraft: (id: string) => void;
@@ -319,6 +323,8 @@ export const useCaseStore = create<CaseState>()(
             },
           };
         }),
+
+      loadDemo: () => set({ caseFile: { ...demoCase, updatedAt: Date.now() } }),
 
       saveDraft: (draft) =>
         set((s) => ({

@@ -8,12 +8,14 @@ import {
   RotateCcw,
   GraduationCap,
   Gavel,
+  Sparkles,
 } from "lucide-react";
 import { useCaseStore } from "../store/useCaseStore";
 import { useSettings } from "../store/useSettings";
 import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 import { buildCaseContext, callGeminiJSON, MissingKeyError } from "../lib/ai";
 import { PageHeader, KeyWarning, ErrorNote, Spinner, Disclaimer } from "../components/common";
+import { demoHearingTurns, demoFeedback } from "../lib/demo";
 
 type Speaker = "Judge" | "Opposing Counsel" | "You";
 
@@ -52,7 +54,7 @@ const FEEDBACK_SYSTEM =
 
 export default function MockHearing() {
   const c = useCaseStore((s) => s.caseFile);
-  const hasKey = useSettings((s) => !!s.geminiKey);
+  const hasKey = useSettings((s) => !!s.geminiKey || !!s.proxyUrl);
   const speech = useSpeechRecognition();
 
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -180,9 +182,21 @@ export default function MockHearing() {
             yourself; the judge and opposing counsel will react. When you're done, get a scored
             critique.
           </p>
-          <button onClick={start} disabled={!hasKey} className="btn-primary mx-auto">
-            <Play size={16} /> Start mock hearing
-          </button>
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => {
+                setStarted(true);
+                setTurns(demoHearingTurns);
+                setFeedback(demoFeedback);
+              }}
+              className="btn-ghost"
+            >
+              <Sparkles size={16} /> Simulate
+            </button>
+            <button onClick={start} disabled={!hasKey} className="btn-primary">
+              <Play size={16} /> Start mock hearing
+            </button>
+          </div>
         </div>
       ) : (
         <div className="grid gap-5 lg:grid-cols-[1.5fr_1fr]">

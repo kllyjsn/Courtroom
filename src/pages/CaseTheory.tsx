@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Scale, Wand2, ShieldCheck, Link2 } from "lucide-react";
+import { Scale, Wand2, ShieldCheck, Link2, Sparkles } from "lucide-react";
 import { useCaseStore } from "../store/useCaseStore";
 import { useSettings } from "../store/useSettings";
 import { generateClaims } from "../lib/analysis";
 import { MissingKeyError } from "../lib/ai";
 import type { LegalElement } from "../lib/types";
 import { PageHeader, KeyWarning, ErrorNote, Spinner, Disclaimer } from "../components/common";
+import { demoClaims } from "../lib/demo";
 
 const STATUS_LABEL: Record<LegalElement["status"], string> = {
   unaddressed: "Unaddressed",
@@ -23,7 +24,7 @@ export default function CaseTheory() {
   const c = useCaseStore((s) => s.caseFile);
   const setClaims = useCaseStore((s) => s.setClaims);
   const updateElement = useCaseStore((s) => s.updateElement);
-  const hasKey = useSettings((s) => !!s.geminiKey);
+  const hasKey = useSettings((s) => !!s.geminiKey || !!s.proxyUrl);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,9 +71,14 @@ export default function CaseTheory() {
         title="Case Theory"
         subtitle="Break the case into the legal elements each side must prove, then map your evidence to each one. Gaps show where you're exposed."
         action={
-          <button onClick={generate} disabled={loading || !hasKey} className="btn-primary">
-            <Wand2 size={16} /> {c.claims.length ? "Regenerate" : "Generate claims & elements"}
-          </button>
+          <div className="flex gap-2">
+            <button onClick={() => setClaims(demoClaims)} className="btn-ghost">
+              <Sparkles size={16} /> Simulate
+            </button>
+            <button onClick={generate} disabled={loading || !hasKey} className="btn-primary">
+              <Wand2 size={16} /> {c.claims.length ? "Regenerate" : "Generate claims & elements"}
+            </button>
+          </div>
         }
       />
 

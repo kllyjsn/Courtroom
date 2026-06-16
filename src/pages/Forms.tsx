@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { FileSignature, Wand2, Download, Tags, FolderArchive } from "lucide-react";
+import { FileSignature, Wand2, Download, Tags, FolderArchive, Sparkles } from "lucide-react";
 import { useCaseStore } from "../store/useCaseStore";
 import { useSettings } from "../store/useSettings";
 import { buildCaseContext, streamGemini, LEGAL_GUARDRAIL, MissingKeyError } from "../lib/ai";
 import { buildLegalDocPdf, buildExhibitBinderPdf, downloadBlob } from "../lib/pdf";
 import { PageHeader, KeyWarning, ErrorNote, Spinner, Disclaimer } from "../components/common";
+import { demoFormBody } from "../lib/demo";
 
 const DOC_TYPES = [
   {
@@ -42,7 +43,7 @@ const DOC_TYPES = [
 export default function Forms() {
   const c = useCaseStore((s) => s.caseFile);
   const assignExhibitLabels = useCaseStore((s) => s.assignExhibitLabels);
-  const hasKey = useSettings((s) => !!s.geminiKey);
+  const hasKey = useSettings((s) => !!s.geminiKey || !!s.proxyUrl);
 
   const [docType, setDocType] = useState(DOC_TYPES[0].id);
   const [body, setBody] = useState("");
@@ -115,6 +116,9 @@ export default function Forms() {
               ))}
             </select>
           </div>
+          <button onClick={() => { setDocType("declaration"); setBody(demoFormBody); }} className="btn-ghost">
+            <Sparkles size={16} /> Simulate
+          </button>
           <button onClick={generate} disabled={generating || !hasKey} className="btn-primary">
             <Wand2 size={16} /> {generating ? "Drafting…" : "Draft with AI"}
           </button>

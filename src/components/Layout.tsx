@@ -15,43 +15,83 @@ import {
   Settings as SettingsIcon,
   Menu,
   X,
+  type LucideIcon,
 } from "lucide-react";
 
-const NAV = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/case", label: "Case Builder", icon: FolderOpen },
-  { to: "/documents", label: "Documents & Intake", icon: FileUp },
-  { to: "/research", label: "Legal Research", icon: Search },
-  { to: "/theory", label: "Case Theory", icon: Scale },
-  { to: "/arguments", label: "Arguments & Motions", icon: Gavel },
-  { to: "/forms", label: "Court Forms", icon: FileSignature },
-  { to: "/deadlines", label: "Deadlines", icon: CalendarClock },
-  { to: "/guide", label: "Rights & Objections", icon: BookOpen },
-  { to: "/hearing", label: "Hearing Mode", icon: Radio },
-  { to: "/mock", label: "Mock Hearing", icon: Swords },
-  { to: "/settings", label: "Settings", icon: SettingsIcon },
+interface NavItem {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+  end?: boolean;
+}
+
+const NAV_SECTIONS: { heading?: string; items: NavItem[] }[] = [
+  {
+    items: [
+      { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
+    ],
+  },
+  {
+    heading: "Build",
+    items: [
+      { to: "/case", label: "Case Builder", icon: FolderOpen },
+      { to: "/documents", label: "Docs & Intake", icon: FileUp },
+      { to: "/theory", label: "Case Theory", icon: Scale },
+    ],
+  },
+  {
+    heading: "Research & Draft",
+    items: [
+      { to: "/research", label: "Legal Research", icon: Search },
+      { to: "/arguments", label: "Arguments", icon: Gavel },
+      { to: "/forms", label: "Court Forms", icon: FileSignature },
+      { to: "/deadlines", label: "Deadlines", icon: CalendarClock },
+    ],
+  },
+  {
+    heading: "Practice",
+    items: [
+      { to: "/guide", label: "Rights & Objections", icon: BookOpen },
+      { to: "/hearing", label: "Hearing Mode", icon: Radio },
+      { to: "/mock", label: "Mock Hearing", icon: Swords },
+    ],
+  },
+  {
+    items: [
+      { to: "/settings", label: "Settings", icon: SettingsIcon },
+    ],
+  },
 ];
 
 function NavItems({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <nav className="flex flex-col gap-1">
-      {NAV.map(({ to, label, icon: Icon, end }) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={end}
-          onClick={onNavigate}
-          className={({ isActive }) =>
-            `flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors ${
-              isActive
-                ? "bg-brass-400/15 text-brass-200"
-                : "text-ink-300 hover:bg-ink-800/70 hover:text-ink-100"
-            }`
-          }
-        >
-          <Icon size={18} />
-          {label}
-        </NavLink>
+    <nav className="flex flex-col gap-0.5">
+      {NAV_SECTIONS.map((section, si) => (
+        <div key={si} className={si > 0 ? "mt-3" : ""}>
+          {section.heading && (
+            <div className="mb-1 px-3.5 text-[10px] font-semibold uppercase tracking-widest text-ink-500">
+              {section.heading}
+            </div>
+          )}
+          {section.items.map(({ to, label, icon: Icon, end }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              onClick={onNavigate}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-3.5 py-2 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-brass-400/15 text-brass-200"
+                    : "text-ink-300 hover:bg-ink-800/70 hover:text-ink-100"
+                }`
+              }
+            >
+              <Icon size={16} />
+              {label}
+            </NavLink>
+          ))}
+        </div>
       ))}
     </nav>
   );

@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
-import { Gavel, Sword, ShieldHalf, FileText, BookmarkPlus, Square } from "lucide-react";
+import { Gavel, Sword, ShieldHalf, FileText, BookmarkPlus, Square, Sparkles } from "lucide-react";
 import { useCaseStore } from "../store/useCaseStore";
 import { useSettings } from "../store/useSettings";
 import { buildCaseContext, streamGemini, MissingKeyError } from "../lib/ai";
 import { PageHeader, KeyWarning, ErrorNote, Spinner, Disclaimer } from "../components/common";
 import Markdown from "../components/Markdown";
+import { demoArgument } from "../lib/demo";
 
 type Mode = "argument" | "rebuttal" | "motion";
 
@@ -21,7 +22,7 @@ const MOTIONS = [
 export default function ArgumentPrep() {
   const c = useCaseStore((s) => s.caseFile);
   const saveDraft = useCaseStore((s) => s.saveDraft);
-  const hasKey = useSettings((s) => !!s.geminiKey);
+  const hasKey = useSettings((s) => !!s.geminiKey || !!s.proxyUrl);
 
   const [mode, setMode] = useState<Mode>("argument");
   const [motionType, setMotionType] = useState(MOTIONS[0]);
@@ -148,6 +149,12 @@ export default function ArgumentPrep() {
               <Square size={14} /> Stop
             </button>
           )}
+          <button
+            onClick={() => setOutput(demoArgument)}
+            className="btn-ghost"
+          >
+            <Sparkles size={16} /> Simulate
+          </button>
           <button
             onClick={generate}
             disabled={loading || !hasKey}
