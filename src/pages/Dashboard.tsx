@@ -47,11 +47,14 @@ const MODULES = [
 ];
 
 function daysUntil(dateStr: string): number | null {
-  if (!dateStr) return null;
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return null;
-  const ms = d.getTime() - Date.now();
-  return Math.ceil(ms / (1000 * 60 * 60 * 24));
+  const [y, m, day] = dateStr.split("-").map(Number);
+  if (!y || !m || !day) return null;
+  const hearing = new Date(y, m - 1, day);
+  if (isNaN(hearing.getTime())) return null;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const ms = hearing.getTime() - now.getTime();
+  return Math.round(ms / (1000 * 60 * 60 * 24));
 }
 
 export default function Dashboard() {

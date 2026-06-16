@@ -97,10 +97,9 @@ export default function Settings() {
               value={s.geminiModel}
               onChange={(e) => s.setGeminiModel(e.target.value)}
             >
-              <option value="gemini-2.0-flash">gemini-2.0-flash (fast, recommended)</option>
-              <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+              <option value="gemini-2.5-flash">gemini-2.5-flash (fast, recommended)</option>
               <option value="gemini-2.5-pro">gemini-2.5-pro (slower, deeper)</option>
-              <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+              <option value="gemini-flash-latest">gemini-flash-latest</option>
             </select>
           </div>
           <KeyField
