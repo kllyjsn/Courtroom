@@ -35,6 +35,53 @@ export interface Evidence {
   type: "document" | "photo" | "message" | "recording" | "physical" | "other";
   description: string;
   supports: string; // which point it supports
+  exhibitId?: string; // assigned exhibit label, e.g. "A"
+}
+
+/** A single legal element the other side (or you) must prove for a claim. */
+export interface LegalElement {
+  id: string;
+  text: string;
+  status: "unaddressed" | "disputed" | "conceded";
+  evidenceIds: string[]; // evidence mapped to this element
+  notes: string;
+}
+
+/** A cause of action / charge broken into its provable elements. */
+export interface LegalClaim {
+  id: string;
+  name: string; // e.g. "Breach of contract"
+  byParty: string; // who must prove it (e.g. "Plaintiff")
+  elements: LegalElement[];
+}
+
+/** A procedural deadline or task. */
+export interface Deadline {
+  id: string;
+  title: string;
+  date: string; // YYYY-MM-DD (may be empty if unknown)
+  detail: string;
+  done: boolean;
+  source: "ai" | "manual";
+}
+
+/** An uploaded source document with extracted text. */
+export interface UploadedDoc {
+  id: string;
+  name: string;
+  kind: string; // mime-ish label
+  text: string; // extracted text
+  addedAt: number;
+}
+
+/** Verification status of a legal authority cited by the AI. */
+export interface Authority {
+  id: string;
+  citation: string; // "California Civil Code § 1950.5"
+  url: string;
+  quote: string;
+  status: "verified" | "unverified" | "failed";
+  note: string;
 }
 
 export interface CaseFile {
@@ -50,6 +97,9 @@ export interface CaseFile {
   parties: Party[];
   timeline: TimelineEvent[];
   evidence: Evidence[];
+  claims: LegalClaim[];
+  deadlines: Deadline[];
+  documents: UploadedDoc[];
   updatedAt: number;
 }
 

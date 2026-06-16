@@ -15,21 +15,36 @@ courtroom procedure, and get live prompts during a hearing.
 
 - **Case Builder** — capture jurisdiction, role, facts, parties, timeline, evidence, and your
   desired outcome. This case file powers every other tool.
-- **Legal Research** (Perplexity) — web-grounded answers with citations, tailored to your case
-  and jurisdiction.
+- **Documents & Intake** — drop in your complaint, summons, lease, or evidence (PDF, images via
+  OCR, or text). Pro Se extracts the text and auto-builds your case file: parties, timeline,
+  claims, elements, and deadlines.
+- **Legal Research** (Perplexity) — web-grounded answers with citations, tailored to your case,
+  plus a **citation verifier** that independently re-checks each cited statute/rule/case so you
+  never rely on an authority the AI invented.
+- **Case Theory** — breaks the case into the legal **elements** each side must prove and lets you
+  map your evidence to each one, surfacing the gaps in your proof.
 - **Arguments & Motions** (Gemini) — build a persuasive argument outline, anticipate the other
   side's arguments with rebuttals, and draft fill-in-the-blank motions.
+- **Court Forms & Exhibits** — generate court-ready document drafts (motion, answer, declaration,
+  continuance, fee waiver) with an auto-built caption, and assemble a labeled **exhibit binder**
+  — all exported as PDF.
+- **Deadlines & Procedure** — a jurisdiction-aware checklist of filing deadlines and prep tasks
+  with countdowns, exportable to your calendar as an `.ics` file.
 - **Rights & Objections** — plain-language guide to courtroom procedure, burden of proof, and a
   tap-to-use objection cheat sheet.
 - **Hearing Mode** — live speech-to-text (browser Web Speech API) with real-time, case-aware
   objection / response / fact prompts.
+- **Mock Hearing** — rehearse against an AI judge and opposing counsel, then get a scored critique
+  with strengths, improvements, and missed objections.
 - **Privacy** — your case data, drafts, and API keys are stored only in your browser's
-  `localStorage`. The only network calls are direct requests to the AI providers you configure.
+  `localStorage`. Document text never leaves your browser except in the AI requests you trigger.
+  Optionally route all AI calls through a self-hosted [key-proxy](./server) instead of BYO-key.
 
 ## Tech stack
 
 React 18 · TypeScript · Vite · Tailwind CSS · Zustand · React Router · Web Speech API ·
-Google Gemini · Perplexity.
+pdf.js (PDF text) · Tesseract.js (image OCR) · pdf-lib (PDF generation) · Google Gemini ·
+Perplexity.
 
 ## Getting started
 
@@ -54,8 +69,17 @@ Keys are stored locally in your browser; nothing is sent to a backend.
 | `npm run preview`  | Preview the production build       |
 | `npm run lint`     | Run ESLint                        |
 
-## Notes for a production deployment
+## Productization
 
-The app is BYO-key and entirely client-side for simplicity. For a shared/public deployment,
-proxy the Gemini and Perplexity calls through a small backend so provider keys are never exposed
-in the browser, and add rate limiting.
+The app is BYO-key and entirely client-side for simplicity. To run it as a real product:
+
+- **Hosted key-proxy (included).** A minimal, dependency-free proxy lives in [`server/`](./server).
+  Run it with your Gemini + Perplexity keys, then set its URL in **Settings → Backend proxy** —
+  the app routes every AI call through it and users no longer paste their own keys.
+- **Accounts + case sync.** Today a `CaseFile` lives in `localStorage`. Persist it server-side
+  (behind auth) so cases follow the user across devices.
+- **Mobile PWA.** The UI is responsive; add a manifest + service worker for installable/offline use.
+- **Safety / unauthorized-practice.** Keep the prominent "not legal advice" guardrails, the citation
+  verifier, and add an explicit handoff to local legal-aid and lawyer-referral services.
+- **Hardening.** Add auth, a CORS allow-list, per-user rate limits/quotas, and abuse monitoring on
+  the proxy before any public deployment. See [`server/README.md`](./server/README.md).
