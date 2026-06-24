@@ -37,11 +37,63 @@ export function buildCaseContext(c: CaseFile): string {
     lines.push(`\nEvidence available:`);
     c.evidence.forEach((e) =>
       lines.push(
-        `- [${e.type}] ${e.label || "(untitled)"}: ${e.description}${e.supports ? ` → supports: ${e.supports}` : ""}`
+        `- ${e.exhibitId ? `Exhibit ${e.exhibitId} — ` : ""}[${e.type}] ${e.label || "(untitled)"}: ${e.description}${e.supports ? ` → supports: ${e.supports}` : ""}`
       )
     );
   }
+  if (c.claims?.length) {
+    lines.push(`\nLegal claims / elements at issue:`);
+    c.claims.forEach((cl) => {
+      lines.push(`- ${cl.name} (must be proven by ${cl.byParty || "?"}):`);
+      cl.elements.forEach((el) =>
+        lines.push(`    • [${el.status}] ${el.text}`)
+      );
+    });
+  }
+  if (c.deadlines?.length) {
+    lines.push(`\nKnown deadlines / tasks:`);
+    c.deadlines.forEach((d) =>
+      lines.push(`- ${d.date || "(no date)"}: ${d.title}${d.done ? " (done)" : ""}`)
+    );
+  }
   return lines.join("\n");
+}
+
+/** Pull the first balanced JSON object/array out of an LLM response. */
+export function extractJson<T = unknown>(raw: string): T | null {
+  let txt = raw.trim();
+  const fence = /```(?:json)?\s*([\s\S]*?)```/.exec(txt);
+  if (fence) txt = fence[1].trim();
+  const firstObj = txt.indexOf("{");
+  const firstArr = txt.indexOf("[");
+  let start = -1;
+  let close = "}";
+  if (firstArr !== -1 && (firstObj === -1 || firstArr < firstObj)) {
+    start = firstArr;
+    close = "]";
+  } else if (firstObj !== -1) {
+    start = firstObj;
+  }
+  if (start === -1) return null;
+  const end = txt.lastIndexOf(close);
+  if (end <= start) return null;
+  try {
+    return JSON.parse(txt.slice(start, end + 1)) as T;
+  } catch {
+    return null;
+  }
+}
+
+/** Call Gemini and parse a JSON object/array from the response. */
+export async function callGeminiJSON<T>(
+  prompt: string,
+  system: string,
+  signal?: AbortSignal
+): Promise<T> {
+  const raw = await callGemini(prompt, system, signal);
+  const parsed = extractJson<T>(raw);
+  if (parsed === null) throw new Error("The assistant did not return valid JSON.");
+  return parsed;
 }
 
 export const LEGAL_GUARDRAIL =
@@ -67,15 +119,19 @@ interface GeminiResponse {
 /** Non-streaming Gemini call. Returns the full text. */
 export async function callGemini(
   prompt: string,
-  system: string = LEGAL_GUARDRAIL
+  system: string = LEGAL_GUARDRAIL,
+  signal?: AbortSignal
 ): Promise<string> {
-  const { geminiKey, geminiModel } = useSettings.getState();
-  if (!geminiKey) throw new MissingKeyError("gemini");
+  const { geminiKey, geminiModel, proxyUrl } = useSettings.getState();
+  if (!proxyUrl && !geminiKey) throw new MissingKeyError("gemini");
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`;
+  const url = proxyUrl
+    ? `${proxyUrl}/api/gemini?model=${geminiModel}`
+    : `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    signal,
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -100,10 +156,12 @@ export async function streamGemini(
   system: string = LEGAL_GUARDRAIL,
   signal?: AbortSignal
 ): Promise<string> {
-  const { geminiKey, geminiModel } = useSettings.getState();
-  if (!geminiKey) throw new MissingKeyError("gemini");
+  const { geminiKey, geminiModel, proxyUrl } = useSettings.getState();
+  if (!proxyUrl && !geminiKey) throw new MissingKeyError("gemini");
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:streamGenerateContent?alt=sse&key=${geminiKey}`;
+  const url = proxyUrl
+    ? `${proxyUrl}/api/gemini/stream?model=${geminiModel}`
+    : `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:streamGenerateContent?alt=sse&key=${geminiKey}`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -174,14 +232,16 @@ export async function callPerplexity(
   prompt: string,
   system: string = LEGAL_GUARDRAIL
 ): Promise<ResearchResult> {
-  const { perplexityKey } = useSettings.getState();
-  if (!perplexityKey) throw new MissingKeyError("perplexity");
+  const { perplexityKey, proxyUrl } = useSettings.getState();
+  if (!proxyUrl && !perplexityKey) throw new MissingKeyError("perplexity");
 
-  const res = await fetch("https://api.perplexity.ai/chat/completions", {
+  const res = await fetch(
+    proxyUrl ? `${proxyUrl}/api/perplexity` : "https://api.perplexity.ai/chat/completions",
+    {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${perplexityKey}`,
+      ...(proxyUrl ? {} : { Authorization: `Bearer ${perplexityKey}` }),
     },
     body: JSON.stringify({
       model: "sonar",
@@ -191,7 +251,8 @@ export async function callPerplexity(
         { role: "user", content: prompt },
       ],
     }),
-  });
+    }
+  );
 
   const data: PerplexityResponse = await res.json();
   if (!res.ok) {

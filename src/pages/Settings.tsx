@@ -130,6 +130,30 @@ export default function Settings() {
       </section>
 
       <section className="card p-5">
+        <h2 className="mb-1 text-lg font-semibold text-ink-50">Backend proxy (optional)</h2>
+        <p className="mb-4 text-sm text-ink-400">
+          Point Pro Se at a hosted proxy that holds the API keys server-side. When set, all AI
+          requests route through it and you don't need to paste your own keys. Leave blank to use
+          bring-your-own-key mode above. See <code className="text-ink-300">server/</code> in the
+          repo for a ready-to-run example.
+        </p>
+        <label className="label">Proxy base URL</label>
+        <input
+          className="input"
+          value={s.proxyUrl}
+          onChange={(e) => s.setProxyUrl(e.target.value)}
+          placeholder="https://your-proxy.example.com"
+          autoComplete="off"
+          spellCheck={false}
+        />
+        {s.proxyUrl && (
+          <p className="mt-2 text-xs text-emerald-300">
+            Proxy mode active — requests go to {s.proxyUrl}/api/*
+          </p>
+        )}
+      </section>
+
+      <section className="card p-5">
         <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-ink-50">
           <FileText size={18} className="text-brass-300" /> Saved documents
         </h2>

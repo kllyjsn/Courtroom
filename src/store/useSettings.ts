@@ -5,10 +5,12 @@ interface SettingsState {
   geminiKey: string;
   perplexityKey: string;
   geminiModel: string;
+  proxyUrl: string;
   disclaimerAccepted: boolean;
   setGeminiKey: (k: string) => void;
   setPerplexityKey: (k: string) => void;
   setGeminiModel: (m: string) => void;
+  setProxyUrl: (u: string) => void;
   acceptDisclaimer: () => void;
 }
 
@@ -23,10 +25,12 @@ export const useSettings = create<SettingsState>()(
       geminiKey: "",
       perplexityKey: "",
       geminiModel: DEFAULT_GEMINI_MODEL,
+      proxyUrl: "",
       disclaimerAccepted: false,
       setGeminiKey: (k) => set({ geminiKey: k.trim() }),
       setPerplexityKey: (k) => set({ perplexityKey: k.trim() }),
       setGeminiModel: (m) => set({ geminiModel: m }),
+      setProxyUrl: (u) => set({ proxyUrl: u.trim().replace(/\/$/, "") }),
       acceptDisclaimer: () => set({ disclaimerAccepted: true }),
     }),
     {
